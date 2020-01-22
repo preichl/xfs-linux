@@ -13,51 +13,49 @@ typedef struct {
 } mrlock_t;
 
 #if defined(DEBUG) || defined(XFS_WARN)
-#define mrinit(mrp, name)	\
-	do { init_rwsem(&(mrp)->mr_lock); } while (0)
+#define mrinit(smp, name)	init_rwsem(smp)
 #else
-#define mrinit(mrp, name)	\
-	do { init_rwsem(&(mrp)->mr_lock); } while (0)
+#define mrinit(smp, name)	init_rwsem(smp)
 #endif
 
-#define mrlock_init(mrp, t,n,s)	mrinit(mrp, n)
-#define mrfree(mrp)		do { } while (0)
+#define mrlock_init(smp, t, n, s)	mrinit(smp, n)
+#define mrfree(smp)		do { } while (0)
 
-static inline void mraccess_nested(mrlock_t *mrp, int subclass)
+static inline void mraccess_nested(struct rw_semaphore *s, int subclass)
 {
-	down_read_nested(&mrp->mr_lock, subclass);
+	down_read_nested(s, subclass);
 }
 
-static inline void mrupdate_nested(mrlock_t *mrp, int subclass)
+static inline void mrupdate_nested(struct rw_semaphore *s, int subclass)
 {
-	down_write_nested(&mrp->mr_lock, subclass);
+	down_write_nested(s, subclass);
 }
 
-static inline int mrtryaccess(mrlock_t *mrp)
+static inline int mrtryaccess(struct rw_semaphore *s)
 {
-	return down_read_trylock(&mrp->mr_lock);
+	return down_read_trylock(s);
 }
 
-static inline int mrtryupdate(mrlock_t *mrp)
+static inline int mrtryupdate(struct rw_semaphore *s)
 {
-	if (!down_write_trylock(&mrp->mr_lock))
+	if (!down_write_trylock(s))
 		return 0;
 	return 1;
 }
 
-static inline void mrunlock_excl(mrlock_t *mrp)
+static inline void mrunlock_excl(struct rw_semaphore *s)
 {
-	up_write(&mrp->mr_lock);
+	up_write(s);
 }
 
-static inline void mrunlock_shared(mrlock_t *mrp)
+static inline void mrunlock_shared(struct rw_semaphore *s)
 {
-	up_read(&mrp->mr_lock);
+	up_read(s);
 }
 
-static inline void mrdemote(mrlock_t *mrp)
+static inline void mrdemote(struct rw_semaphore *s)
 {
-	downgrade_write(&mrp->mr_lock);
+	downgrade_write(s);
 }
 
 #endif /* __XFS_SUPPORT_MRLOCK_H__ */

@@ -353,17 +353,17 @@ xfs_isilocked(
 	if (lock_flags & (XFS_ILOCK_EXCL|XFS_ILOCK_SHARED)) {
 		if (!(lock_flags & XFS_ILOCK_SHARED))
 			return !debug_locks ||
-				lockdep_is_held_type(&ip->i_lock.mr_lock, 0);
-		return rwsem_is_locked(&ip->i_lock.mr_lock);
+				lockdep_is_held_type(&ip->i_lock, 0);
+		return rwsem_is_locked(&ip->i_lock);
 	}
 
 	if (lock_flags & (XFS_MMAPLOCK_EXCL|XFS_MMAPLOCK_SHARED)) {
 		if (!(lock_flags & XFS_MMAPLOCK_SHARED))
 			return !debug_locks ||
 				lockdep_is_held_type(
-						&ip->i_mmaplock.mr_lock,
+						&ip->i_mmaplock,
 						0);
-		return rwsem_is_locked(&ip->i_mmaplock.mr_lock);
+		return rwsem_is_locked(&ip->i_mmaplock);
 	}
 
 	if (lock_flags & (XFS_IOLOCK_EXCL|XFS_IOLOCK_SHARED)) {
